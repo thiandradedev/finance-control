@@ -226,6 +226,74 @@ button {
   background: rgba(15, 23, 42, 0.45);
 }
 
+.transaction-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.transaction-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.transaction-card strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.transaction-card p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.transaction-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.transaction-amount {
+  display: inline-flex;
+  min-width: 110px;
+  justify-content: flex-end;
+  font-weight: 800;
+}
+
+.transaction-amount.income {
+  color: var(--income);
+}
+
+.transaction-amount.expense {
+  color: var(--expense);
+}
+
+.delete-button {
+  padding: 8px 10px;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.delete-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.16);
+}
+
 @media (max-width: 900px) {
   .summary-section {
     grid-template-columns: repeat(2, 1fr);
@@ -249,5 +317,19 @@ button {
   .transactions-section,
   .summary-card {
     padding: 18px;
+  }
+
+  .transaction-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .transaction-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .transaction-amount {
+    min-width: auto;
   }
 }
