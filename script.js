@@ -1,82 +1,106 @@
+const transactionForm = document.querySelector("#transactionForm");
+const descriptionInput = document.querySelector("#description");
+const amountInput = document.querySelector("#amount");
+const typeInput = document.querySelector("#type");
+const categoryInput = document.querySelector("#category");
+const dateInput = document.querySelector("#date");
 
-const transactionForm = document.querySelector('#transactionForm');
-const descriptionInput = document.querySelector('#description');
-const amountInput = document.querySelector('#amount');
-const typeInput = document.querySelector('#type');
-const categoryInput = document.querySelector('#category');
-const dateInput = document.querySelector('#date');
+const totalBalanceElement = document.querySelector("#totalBalance");
+const totalIncomeElement = document.querySelector("#totalIncome");
+const totalExpensesElement = document.querySelector("#totalExpenses");
+const transactionCountElement = document.querySelector("#transactionCount");
+const transactionsList = document.querySelector("#transactionsList");
+const filterButtons = document.querySelectorAll(".filter-button");
 
-const totalBalanceElement = document.querySelector('#totalBalance');
-const totalIncomeElement = document.querySelector('#totalIncome');
-const totalexpensesElement =document.querySelector('#totalExpenses');
-const transactionCountElement = document.querySelector('#transactionCount');
-const transactionsList = document.querySelector('#transactionsList');
-const filterButtons = document.querySelectorAll('.filter-button');
+const STORAGE_KEY = "finance-control-transactions";
 
-let transactions =[];
-let currentFilter = 'all';
+let transactions = [];
+let currentFilter = "all";
 
 function formatCurrency(value) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+  }).format(value);
 }
 
 function formatDate(dateValue) {
-  return new Intl.DateTimeFormat('es-ES', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric'
-  }).format(new Date(dateValue));
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric"
+  }).format(new Date(`${dateValue}T00:00:00`));
 }
 
-function createTransactionElement(description, amount, type, category, categoryLabel, date) {
-    return {
-        id: crypto.randomUUID(),
-        description,
-        amount,
-        type,
-        category,
-        categoryLabel,
-        date,
-        createAt: new Date().toISOString()
-    };
+function generateId() {
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return String(Date.now());
+}
+
+function createTransaction(description, amount, type, category, categoryLabel, date) {
+  return {
+    id: generateId(),
+    description,
+    amount,
+    type,
+    category,
+    categoryLabel,
+    date,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function saveTransactions() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+}
+
+function loadTransactions() {
+  const savedTransactions = localStorage.getItem(STORAGE_KEY);
+
+  if (!savedTransactions) {
+    transactions = [];
+    return;
+  }
+
+  transactions = JSON.parse(savedTransactions);
 }
 
 function getFilteredTransactions() {
-    if (currentFilter === 'all') {
-        return transactions;
-    }
+  if (currentFilter === "all") {
+    return transactions;
+  }
 
-    return transactions.filter(function (transaction) {
-        return transaction.type === currentFilter;
-    });
+  return transactions.filter(function (transaction) {
+    return transaction.type === currentFilter;
+  });
 }
 
 function updateSummary() {
-    const totalIncome = transactions
+  const totalIncome = transactions
     .filter(function (transaction) {
-        return transaction.type === 'income';
+      return transaction.type === "income";
     })
     .reduce(function (total, transaction) {
-        return total + transaction.amount;
+      return total + transaction.amount;
     }, 0);
 
-const totalExpenses = transactions 
-  .filter(function (transaction) {
-    return transaction.type === 'expense';
-  })
+  const totalExpenses = transactions
+    .filter(function (transaction) {
+      return transaction.type === "expense";
+    })
     .reduce(function (total, transaction) {
-        return total + transaction.amount;
+      return total + transaction.amount;
     }, 0);
 
-    const totalBalance = totalIncome - totalExpenses;
+  const totalBalance = totalIncome - totalExpenses;
 
-    totalBalanceElement.textContent = formatCurrency(totalBalance);
-    totalIncomeElement.textContent = formatCurrency(totalIncome);
-    totalexpensesElement.textContent = formatCurrency(totalExpenses);
-    transactionCountElement.textContent = transactions.length;
+  totalBalanceElement.textContent = formatCurrency(totalBalance);
+  totalIncomeElement.textContent = formatCurrency(totalIncome);
+  totalExpensesElement.textContent = formatCurrency(totalExpenses);
+  transactionCountElement.textContent = transactions.length;
 }
 
 function renderTransactions() {
@@ -127,80 +151,86 @@ function renderTransactions() {
 }
 
 function updateApp() {
-    updateSummary();
-    renderTransactions();
+  updateSummary();
+  renderTransactions();
 }
 
 function resetForm() {
   transactionForm.reset();
-  setTodayDefaultDate();
+  setTodayAsDefaultDate();
   descriptionInput.focus();
 }
 
-function setTodayDefaultDate() {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
+function setTodayAsDefaultDate() {
+  const today = new Date().toISOString().split("T")[0];
+  dateInput.value = today;
 }
 
-transactionForm.addEventListener('submit', function (event) {
-    event.preventDefault();
+transactionForm.addEventListener("submit", function (event) {
+  event.preventDefault();
 
-    const description = descriptionInput.value.trim();
-    const amount = parseFloat(amountInput.value);
-    const type = typeInput.value;
-    const category = categoryInput.value;
-    const categoryLabel = categoryInput.options[categoryInput.selectedIndex].text;
-    const date = dateInput.value;
+  const description = descriptionInput.value.trim();
+  const amount = Number(amountInput.value);
+  const type = typeInput.value;
+  const category = categoryInput.value;
+  const categoryLabel = categoryInput.options[categoryInput.selectedIndex].textContent;
+  const date = dateInput.value;
 
-    if (!description || !amount || !type || !category || !date) {
-        alert('Please fill in all fields.');
-        return;
-    }
+  if (!description || !amount || !type || !category || !date) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-    if (amount <= 0) {
-      alert('Amount must be greater than zero.');
-      return;
-    }
+  if (amount <= 0) {
+    alert("Amount must be greater than zero.");
+    return;
+  }
 
-    const newTransaction = createTransactionElement(
-        description,
-        amount,
-        type,
-        category,
-        categoryLabel,
-        date
-    );
+  const newTransaction = createTransaction(
+    description,
+    amount,
+    type,
+    category,
+    categoryLabel,
+    date
+  );
 
-    transactions.push(newTransaction);
-
-    updateApp();
-    resetForm();
+  transactions.push(newTransaction);
+  saveTransactions();
+  updateApp();
+  resetForm();
 });
 
-transactionsList.addEventListener('click', function (event) {
-    const deleteButton = event.target.closest('.delete-button');
-    if (!deleteButton) {
-      return;
-    }
-    const transactionId = deleteButton.dataset.id;
-    transactions = transactions.filter(function (transaction) {
-      return transaction.id !== transactionId;
-    });
-    updateApp();
+transactionsList.addEventListener("click", function (event) {
+  const deleteButton = event.target.closest(".delete-button");
+
+  if (!deleteButton) {
+    return;
+  }
+
+  const transactionId = deleteButton.dataset.id;
+
+  transactions = transactions.filter(function (transaction) {
+    return transaction.id !== transactionId;
+  });
+
+  saveTransactions();
+  updateApp();
 });
 
 filterButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-        filterButtons.forEach(function (currentButton) {
-            currentButton.classList.remove('active');
-        });
-
-        button.classList.add('active');
-        currentFilter = button.dataset.filter;
-
-        renderTransactions();
+  button.addEventListener("click", function () {
+    filterButtons.forEach(function (currentButton) {
+      currentButton.classList.remove("active");
     });
+
+    button.classList.add("active");
+    currentFilter = button.dataset.filter;
+
+    renderTransactions();
+  });
 });
 
-setTodayDefaultDate();
+setTodayAsDefaultDate();
+loadTransactions();
 updateApp();
