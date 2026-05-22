@@ -1,9 +1,10 @@
-const transactionForm = document.querySelector('#transaction-form');
-const descriptionList = document.querySelector('#description');
+
+const transactionForm = document.querySelector('#transactionForm');
+const descriptionInput = document.querySelector('#description');
 const amountInput = document.querySelector('#amount');
-const typeinput = document.querySelector('#type');
+const typeInput = document.querySelector('#type');
 const categoryInput = document.querySelector('#category');
-const dateInput = document.querySelector('date');
+const dateInput = document.querySelector('#date');
 
 const totalBalanceElement = document.querySelector('#totalBalance');
 const totalIncomeElement = document.querySelector('#totalIncome');
@@ -23,11 +24,11 @@ function formatCurrency(value) {
 }
 
 function formatDate(dateValue) {
-    return new Intl.DateTimeFormat('es-ES', {
-        month: 'short',
-        day: '2-digit',
-        year: 'numeric'
-    }).format(new Date(dataValue));
+  return new Intl.DateTimeFormat('es-ES', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric'
+  }).format(new Date(dateValue));
 }
 
 function createTransactionElement(description, amount, type, category, categoryLabel, date) {
@@ -75,7 +76,7 @@ const totalExpenses = transactions
     totalBalanceElement.textContent = formatCurrency(totalBalance);
     totalIncomeElement.textContent = formatCurrency(totalIncome);
     totalexpensesElement.textContent = formatCurrency(totalExpenses);
-    transactionCountElement.textcontent = transactions.length;
+    transactionCountElement.textContent = transactions.length;
 }
 
 function renderTransactions() {
@@ -131,9 +132,9 @@ function updateApp() {
 }
 
 function resetForm() {
-    transactionForm.reset();
-    setTodayDefaultDate();
-    descriptionInput.focus();
+  transactionForm.reset();
+  setTodayDefaultDate();
+  descriptionInput.focus();
 }
 
 function setTodayDefaultDate() {
@@ -141,7 +142,7 @@ function setTodayDefaultDate() {
     dateInput.value = today;
 }
 
-transactionForm.addEventLiestener('submit', function (event) {
+transactionForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
     const description = descriptionInput.value.trim();
@@ -157,8 +158,8 @@ transactionForm.addEventLiestener('submit', function (event) {
     }
 
     if (amount <= 0) {
-        alert('Amount must be greaterThan zero.');
-        return;
+      alert('Amount must be greater than zero.');
+      return;
     }
 
     const newTransaction = createTransactionElement(
@@ -178,17 +179,13 @@ transactionForm.addEventLiestener('submit', function (event) {
 
 transactionsList.addEventListener('click', function (event) {
     const deleteButton = event.target.closest('.delete-button');
-
     if (!deleteButton) {
-        return;
+      return;
     }
-
-    const transactionID = deleteButton.dataset.id;
-
+    const transactionId = deleteButton.dataset.id;
     transactions = transactions.filter(function (transaction) {
-        return transaction.id !== transactionId;
+      return transaction.id !== transactionId;
     });
-
     updateApp();
 });
 
